@@ -1,0 +1,22 @@
+{
+  "name": "template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+          "build": "webpack",
+          "start": "webpack-dev-server --port 8080"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babylonjs/core": "^5.10.0",
+    "@babylonjs/inspector": "^5.10.0",
+    "html-webpack-plugin": "^5.5.0",
+    "ts-loader": "^9.3.0",
+    "typescript": "^4.7.3",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.9.2"
+  }
+}
