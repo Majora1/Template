@@ -4,8 +4,9 @@ let FPCamera = function(scene, canvas, target, offset = Vector3.Zero()){
     this.scene = scene;
     this.canvas = canvas;
     this.target = target;
+    this.targetPhysics = target.physics;
     this.camera = new UniversalCamera("FPCamera",Vector3.Zero(),scene);
-    this.camera.position = target.pos;
+    this.camera.position = target.physics.pos;
     this.rot = this.camera.rotation;
     this.camera.inputs.clear();
     this.camera.inputs.addMouse();
@@ -13,7 +14,13 @@ let FPCamera = function(scene, canvas, target, offset = Vector3.Zero()){
 }
 
 FPCamera.prototype.update = function(){
-    this.camera.position = this.target.pos;
+    this.camera.position = this.targetPhysics.pos.add(
+        new Vector3(
+            Math.cos(-this.target.physics.rot._y + Math.PI/2) * (-this.target.width/1.5),
+            this.target.height / 4,
+            Math.sin(this.target.physics.rot._y + Math.PI/2) * (-this.target.width/1.5)
+        )
+    );
     this.rot = this.camera.rotation;
 }
 

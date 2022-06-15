@@ -3,7 +3,6 @@ let InputController = function setMyKeyDownListener(actionner, map) {
     window.addEventListener(
       "keydown",
       function(event) {
-        console.log(event)
         if (event.key in map){
             action = map[event.key];
             if (action in actionner){
@@ -31,7 +30,6 @@ let InputControllerBoolean = function setMyKeyDownListener(actions, map) {
     window.addEventListener(
         "keydown",
         function(event) {
-          console.log(event)
           if (event.key in map){
               action = map[event.key];
               if (action in actions){
@@ -51,6 +49,28 @@ let InputControllerBoolean = function setMyKeyDownListener(actions, map) {
                 }
               }
           }
+      )
+      window.addEventListener(
+        "mousedown",
+        function(event) {
+            if (event.button in map){
+                action = map[event.button];
+                if (action in actions){
+                    actions[action] = true;
+                }
+            }
+          }
+      )
+      window.addEventListener(
+        "mouseup",
+        function(event){
+            if (event.button in map){
+                action = map[event.button];
+                if (action in actions){
+                  actions[action] = false;
+              }
+            }
+        }
       )
 }
 

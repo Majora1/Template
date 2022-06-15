@@ -8,6 +8,10 @@ let PhysicObject = function(position = Vector3.Zero(), resistance = Vector3.Zero
     this.rot = new Vector3.Zero();
 }
 
+PhysicObject.prototype.setPos = function(pos){
+    this.pos = pos;
+}
+
 PhysicObject.prototype.updatePos = function(spe = Vector3.Zero(), acc = Vector3.Zero()){
     this.acc = this.acc.addInPlace(acc);
     this.spe = this.spe.addInPlace(spe);
