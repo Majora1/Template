@@ -17,7 +17,7 @@ FPCamera.prototype.update = function(){
     this.camera.position = this.targetPhysics.pos.add(
         new Vector3(
             Math.cos(-this.target.physics.rot._y + Math.PI/2) * (-this.target.width/1.5),
-            this.target.height / 4,
+            this.target.height / 3,
             Math.sin(this.target.physics.rot._y + Math.PI/2) * (-this.target.width/1.5)
         )
     );

@@ -30,6 +30,9 @@ module.exports = {
             },
         ],
     },
+    experiments: {
+        topLevelAwait: true
+    },
     plugins: [
         new HtmlWebpackPlugin({
             inject: true,

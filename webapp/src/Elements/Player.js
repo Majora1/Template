@@ -1,9 +1,9 @@
-import { Color4, Mesh, MeshBuilder, Vector4 } from '@babylonjs/core';
+import { Color4, Mesh, MeshBuilder, Vector4, ActionManager } from '@babylonjs/core';
 import { Vector3, PhysicsImpostor } from "@babylonjs/core";
 import { PhysicObject } from './PhysicObject.js';
 import { FPCamera } from '../Cameras/FPCamera.js';
 import { InputControllerBoolean } from '../InputController.js';
-import { Material } from 'cannon';
+import { PlayerInfoSend } from './../Data/PlayerInfo.js';
 
 let Player = function(scene, canvas, pos){
     // flat values
@@ -18,10 +18,10 @@ let Player = function(scene, canvas, pos){
     // action attributes
     // attack
     this.isAttacking = false;
-    this.atkCooldown = 100;
-    this.swingDuration = 40;
+    this.atkCooldown = 80;
+    this.swingDuration = 20;
     this.atkFrameCount = 0;
-    this.swordHitBox = undefined;
+    this.swordHitBox = MeshBuilder.CreateBox("", {width : 0});
 
     // player caracteristics
     this.width = 1
@@ -37,9 +37,10 @@ let Player = function(scene, canvas, pos){
     this.hitBox.position = pos;
     this.hitBox.receiveShadows = true;
     this.hitBox.isVisible = true;
+    this.hitBox.collisionGroup = 0;
     this.hitBox.physicsImpostor = new PhysicsImpostor(this.hitBox, PhysicsImpostor.CylinderImpostor, { mass: 10, restitution : 0, friction : 0, disableBidirectionalTransformation: false }, scene);
     // damage hitboxes
-    this.damageHitboxes = [];
+    this.damageHitBoxes = [];
 
     // camera
     this.camera = new FPCamera(scene, canvas, this);
@@ -87,7 +88,7 @@ Player.prototype.updateAcc = function(){
 
 Player.prototype.updateAction = function(){
     if(this.actionPressed["atk"] || this.isAttacking){
-        console.log("I'm attacking")
+        //console.log("I'm attacking")
         this.attack(this.atkFrameCount);
         this.atkFrameCount++;
         this.isAttacking = true;
@@ -102,8 +103,8 @@ Player.prototype.attack = function(frame){
     if (frame == 0){
         let color = new Color4(1, 1, 0, 1);
         let colors = new Array(6).fill(color);
-        this.swordHitBox = MeshBuilder.CreateBox("sword", {size : 0.2, width : 0.2, height : 1.5, faceColors : colors});
-        this.damageHitboxes.push(this.swordHitBox);
+        this.swordHitBox = MeshBuilder.CreateBox("sword", {size : 0.2, width : 0.2, height : 2.5, faceColors : colors});
+        this.damageHitBoxes.push(this.swordHitBox);
     }
     // the swing
     this.swordHitBox.rotation = this.physics.rot.add(
@@ -139,12 +140,16 @@ Player.prototype.attack = function(frame){
     );
 
     if (frame >= this.swingDuration){
-        let index = this.damageHitboxes.indexOf(this.swordHitBox);
+        let index = this.damageHitBoxes.indexOf(this.swordHitBox);
         this.swordHitBox.dispose();
         if (index !== -1) {
-            this.damageHitboxes.splice(index, 1);
+            this.damageHitBoxes.splice(index, 1);
         }
     }
+}
+
+Player.prototype.getPlayerInfo = function(){
+    return new PlayerInfoSend(this.physics, 0)
 }
 
 Player.prototype.update = function(spe = Vector3.Zero(), acc = Vector3.Zero()){
@@ -157,7 +162,6 @@ Player.prototype.update = function(spe = Vector3.Zero(), acc = Vector3.Zero()){
     this.camera.update();
     this.physics.updateRot(new Vector3(0, this.camera.rot.y, this.camera.rot.z));
     this.hitBox.physicsImpostor.setAngularVelocity(Vector3.Zero());
-    this.hitBox.physicsImpostor.setRotation
     this.hitBox.rotation.set(this.physics.rot);
 }
 
