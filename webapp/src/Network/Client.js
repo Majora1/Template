@@ -21,6 +21,11 @@ Client.prototype.sendPlayerInfo = function(playerInfo){
     this.socket.emit("updatePlayerInfo", playerInfo);
 }
 
+Client.prototype.sendKill = function(idKilled){
+    console.log(idKilled, "was killed !");
+    // this.socked.emit("")
+}
+
 Client.prototype.getEnnemyData = function(){
     return this.ennemiesData;
 }

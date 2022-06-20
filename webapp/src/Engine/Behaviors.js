@@ -1,9 +1,11 @@
-let Behaviors = function(scene){
-    this.scene = scene;
+import { Client } from './../Network/Client.js'
+
+let Behaviors = function(client){
+
 }
 
-Behaviors.prototype.swordHitEnnemy = function(sword, ennemy){
-    ennemy.dispose();
+Behaviors.prototype.swordHitEnnemy = function(sword, ennemy, client){
+    client.sendKill(ennemy.id);
 }
 
 export { Behaviors };

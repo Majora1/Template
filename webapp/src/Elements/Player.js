@@ -106,7 +106,7 @@ Player.prototype.attack = function(frame){
     if (frame == 0){
         let color = new Color4(1, 1, 0, 1);
         let colors = new Array(6).fill(color);
-        this.swordHitBox = MeshBuilder.CreateBox("sword", {size : 0.2, width : 0.2, height : 2.5, faceColors : colors});
+        this.swordHitBox = MeshBuilder.CreateBox("sword", {size : 0.2, width : 0.2, height : 2, faceColors : colors});
         this.damageHitBoxes.push(this.swordHitBox);
     }
     // the swing
@@ -185,7 +185,6 @@ Player.prototype.update = function(spe = Vector3.Zero(), acc = Vector3.Zero()){
     this.hitBox.physicsImpostor.setAngularVelocity(Vector3.Zero());
     this.hitBox.rotation.set(this.physics.rot);
     this.updateAnimationInfo();
-    console.log(this.isSwinging);
 }
 
 export { Player };

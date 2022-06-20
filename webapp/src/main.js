@@ -116,10 +116,11 @@ let loadModel = async function(name){
     return model;
 }
 
+const client = new Client();
 let eModel = await loadModel("Character.glb");
 let inputController = new InputController(menuController, actionMap);
-let collisionDetector = new CollisionDetector(scene);
-let behaviors = new Behaviors(scene);
+let collisionDetector = new CollisionDetector(scene, client);
+let behaviors = new Behaviors();
 let ennemiesHandler = new EnnemiesHandler(scene, eModel);
 
 
@@ -128,7 +129,6 @@ let ennemiesHandler = new EnnemiesHandler(scene, eModel);
 let desiredFps = 80;
 let interval = 1000/desiredFps;
 let lastTime = performance.now();
-let client = new Client();
 
 engine.runRenderLoop(() => {
     let currentTime = performance.now();
@@ -139,6 +139,6 @@ engine.runRenderLoop(() => {
         ennemiesHandler.updateEnnemies(client.getEnnemyData());
         player.update();
         scene.render();
-        collisionDetector.triggerCollisionEvent([ player.swordHitBox ], ennemies, behaviors.swordHitEnnemy);
+        collisionDetector.triggerIfEnnemyCollision([ player.swordHitBox ], ennemiesHandler.getEnnemies(), behaviors.swordHitEnnemy);
     }
 });

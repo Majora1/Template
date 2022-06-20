@@ -1,24 +1,26 @@
 import { ExecuteCodeAction, ActionManager } from "@babylonjs/core";
 
-let CollisionDetector = function(scene){
-    this.scene;
+let CollisionDetector = function(scene, client)
+{
+    this.scene = scene;
+    this.client = client;
 }
-CollisionDetector.prototype.triggerCollisionEvent = function(groupMesh1, groupMesh2, eventIncident){
+CollisionDetector.prototype.triggerIfEnnemyCollision = function(groupMesh1, ennemies, eventIncident){
     groupMesh1.forEach(mesh => {
         mesh.actionManager = new ActionManager(this.scene);
-        groupMesh2.forEach(mesh2 => {
+        ennemies.forEach(ennemy => {
             mesh.actionManager.registerAction(
                 new ExecuteCodeAction({
                     trigger: ActionManager.OnIntersectionEnterTrigger,
-                    parameter: mesh2
+                    parameter: ennemy.hitBox
                 },
                 (e)=>{
-                    eventIncident(mesh, mesh2);
-                    console.log("hited");
+                    eventIncident(mesh, ennemy, this.client);
                 })
             )
         });   
     });
 }
+
 
 export { CollisionDetector };

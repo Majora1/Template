@@ -5,9 +5,11 @@ let EnnemiesHandler = function(scene, model){
     this.scene = scene;
     this.model = model;
     this.ennemies = {};
+    this.arrayEnnemies = [];
 }
 
 EnnemiesHandler.prototype.updateEnnemies = function(newData){
+    this.arrayEnnemies = []
     newData.forEach(data => {
         let d = data[0];
         let id = data[1];
@@ -16,7 +18,12 @@ EnnemiesHandler.prototype.updateEnnemies = function(newData){
             this.ennemies[id] = newEnnemy;
         }
         this.ennemies[id].updateInformation(d);
+        this.arrayEnnemies.push(this.ennemies[id]);
     });
+}
+
+EnnemiesHandler.prototype.getEnnemies = function(){
+    return this.arrayEnnemies;
 }
 
 export { EnnemiesHandler };
