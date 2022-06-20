@@ -18,8 +18,9 @@ let Player = function(scene, canvas, pos){
     // action attributes
     // attack
     this.isAttacking = false;
-    this.atkCooldown = 80;
-    this.swingDuration = 20;
+    this.atkCooldown = 100;
+    this.isSwinging = false;
+    this.swingDuration = 40;
     this.atkFrameCount = 0;
     this.swordHitBox = MeshBuilder.CreateBox("", {width : 0});
 
@@ -66,16 +67,19 @@ let Player = function(scene, canvas, pos){
         "atk" : false
     }
 
+    this.animationFramesSinceChange = 0;
+    this.animation = "idle";
+
     this.inputController = new InputControllerBoolean(this.actionPressed, this.actionMap);
 }
 
 Player.prototype.updateAcc = function(){
     let multipleInput = 
         (
-          this.actionPressed["fwd"] ? 1 : 0 +
-          this.actionPressed["bwd"] ? 1 : 0 +
-          this.actionPressed["rgt"] ? 1 : 0 +
-          this.actionPressed["lft"] ? 1 : 0
+          (this.actionPressed["fwd"] ? 1 : 0) +
+          (this.actionPressed["bwd"] ? 1 : 0) +
+          (this.actionPressed["rgt"] ? 1 : 0) +
+          (this.actionPressed["lft"] ? 1 : 0)
         ) > 1;
     let fwdBwdMvt = ((this.actionPressed["fwd"] ? 1 : 0) + (this.actionPressed["bwd"] ? -1 : 0)) * this.accValue / (multipleInput ? Math.sqrt(2) : 1);
     let rgtLftMvt = ((this.actionPressed["lft"] ? this.sideMvtValue : 0) + (this.actionPressed["rgt"] ? -this.sideMvtValue : 0)) * this.accValue / (multipleInput ? Math.sqrt(2) : 1)
@@ -88,7 +92,6 @@ Player.prototype.updateAcc = function(){
 
 Player.prototype.updateAction = function(){
     if(this.actionPressed["atk"] || this.isAttacking){
-        //console.log("I'm attacking")
         this.attack(this.atkFrameCount);
         this.atkFrameCount++;
         this.isAttacking = true;
@@ -138,31 +141,51 @@ Player.prototype.attack = function(frame){
             this.height/8,
             -Math.sin(this.physics.rot.y - Math.PI/2) * 1.2)
     );
-
+    this.isSwinging = true;
     if (frame >= this.swingDuration){
         let index = this.damageHitBoxes.indexOf(this.swordHitBox);
         this.swordHitBox.dispose();
         if (index !== -1) {
             this.damageHitBoxes.splice(index, 1);
         }
+        this.isSwinging = false;
     }
 }
 
 Player.prototype.getPlayerInfo = function(){
-    return new PlayerInfoSend(this.physics, 0)
+    return new PlayerInfoSend(this.physics, this.animation, this.animationFramesSinceChange, this.isSwinging, this.atkFrameCount);
+}
+
+Player.prototype.updateAnimationInfo = function(){
+    if (this.actionPressed["fwd"] || this.actionPressed["bwd"] || this.actionPressed["lft"] || this.actionPressed["rgt"]){
+        if (this.animation == "run"){
+            this.animationFramesSinceChange++;
+        } else {
+            this.animationFramesSinceChange = 0;
+        }
+        this.animation = "run";
+    } else {
+        if (this.animation == "idle"){
+            this.animationFramesSinceChange++;
+        } else {
+            this.animationFramesSinceChange = 0;
+        }
+        this.animation = "idle";
+    }
 }
 
 Player.prototype.update = function(spe = Vector3.Zero(), acc = Vector3.Zero()){
     this.updateAcc();
     this.updateAction();
     this.physics.updatePos(acc = this.accMvt);
-    //this.hitBox.position.addInPlace(this.physics.spe);
     this.hitBox.physicsImpostor.setLinearVelocity(this.physics.spe);
     this.physics.setPos(this.hitBox.position);
     this.camera.update();
     this.physics.updateRot(new Vector3(0, this.camera.rot.y, this.camera.rot.z));
     this.hitBox.physicsImpostor.setAngularVelocity(Vector3.Zero());
     this.hitBox.rotation.set(this.physics.rot);
+    this.updateAnimationInfo();
+    console.log(this.isSwinging);
 }
 
 export { Player };

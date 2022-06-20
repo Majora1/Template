@@ -34,8 +34,6 @@ async def update(sid, data):
     client = clientsData.get(sid, None)
     if client is not None:
         clientsData.pop(sid)
-    #print("---------------------------------")
-    #print(list(clientsData.values()))
     await sio.emit("updateEnnemiesData", list(clientsData.values()), to=sid);
     clientsData[sid] = (data, sid)
 

@@ -10,8 +10,7 @@ let Client = function(){
     });
     this.socket.on("updateEnnemiesData", (ennemiesData) => {
         this.ennemiesData = ennemiesData;
-        //console.log("Data received", ennemiesData);
-    })
+    });
 }
 
 Client.prototype.sendText = function(text){
@@ -19,7 +18,6 @@ Client.prototype.sendText = function(text){
 }
 
 Client.prototype.sendPlayerInfo = function(playerInfo){
-    //console.log(playerInfo);
     this.socket.emit("updatePlayerInfo", playerInfo);
 }
 

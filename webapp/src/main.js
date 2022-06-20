@@ -113,7 +113,7 @@ let updateEnnemies = function(oldEnnemiesData, newEnnemiesData){
 let loadModel = async function(name){
     let model = await SceneLoader.ImportMeshAsync(null, "./models/", name, scene);
     model.meshes[0].isVisible = false;
-    return model.meshes[0];
+    return model;
 }
 
 let eModel = await loadModel("Character.glb");
