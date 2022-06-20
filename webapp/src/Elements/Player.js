@@ -5,7 +5,7 @@ import { FPCamera } from '../Cameras/FPCamera.js';
 import { InputControllerBoolean } from '../InputController.js';
 import { PlayerInfoSend } from './../Data/PlayerInfo.js';
 
-let Player = function(scene, canvas, pos){
+let Player = function(scene, canvas, pos, model){
     // flat values
     this.accValue = 10;
     this.sideMvtValue = 0.6;
@@ -36,12 +36,18 @@ let Player = function(scene, canvas, pos){
     //let color = new Material()
     this.hitBox = MeshBuilder.CreateCapsule("player", { radius : this.width/2, height : this.height}, scene);
     this.hitBox.position = pos;
-    this.hitBox.receiveShadows = true;
-    this.hitBox.isVisible = true;
-    this.hitBox.collisionGroup = 0;
+    this.hitBox.receiveShadows = false;
+    this.hitBox.isVisible = false;
     this.hitBox.physicsImpostor = new PhysicsImpostor(this.hitBox, PhysicsImpostor.CylinderImpostor, { mass: 10, restitution : 0, friction : 0, disableBidirectionalTransformation: false }, scene);
     // damage hitboxes
     this.damageHitBoxes = [];
+
+
+    // this.model = model.meshes[0];
+    // console.log(this.model.position)
+    // this.model.isVisible = false;
+    // this.model.position = pos
+    // this.attackAnimation = model.animationGroups[0];
 
     // camera
     this.camera = new FPCamera(scene, canvas, this);
@@ -129,9 +135,9 @@ Player.prototype.attack = function(frame){
     // translate the sword to the right size as it swing
     add(
         new Vector3(
-            Math.cos(this.physics.rot.y) * (this.width/2 - (frame + this.width/10) / this.swingDuration),
+            Math.cos(this.physics.rot.y) * (this.width/1.2 - (frame + this.width/10) / this.swingDuration),
             0,
-            -Math.sin(this.physics.rot.y) * (this.width/2 - (frame + this.width/10) / this.swingDuration)
+            -Math.sin(this.physics.rot.y) * (this.width/1.2 - (frame + this.width/10) / this.swingDuration)
         )
     ).
     // put the sword in front of the player
@@ -172,18 +178,37 @@ Player.prototype.updateAnimationInfo = function(){
         }
         this.animation = "idle";
     }
+    // if(this.isSwinging){
+    //     this.attackAnimation.goToFrame(this.atkFrameCount);
+    //     this.attackAnimation.play();
+    // } else {
+    //     this.attackAnimation.stop();
+    // }
+}
+
+Player.prototype.die = function(){
+    delete this.camera;
+    this.hitBox.dispose();
+    delete this;
+}
+
+Player.prototype.setPosition = function(position){
+    this.hitBox.physicsImpostor.setDeltaPosition(position.subtract(this.physics.pos));
 }
 
 Player.prototype.update = function(spe = Vector3.Zero(), acc = Vector3.Zero()){
     this.updateAcc();
     this.updateAction();
     this.physics.updatePos(acc = this.accMvt);
+    // this.hitBox.position.set(this.physics.pos.x, this.physics.pos.y, this.physics.pos.z);
     this.hitBox.physicsImpostor.setLinearVelocity(this.physics.spe);
     this.physics.setPos(this.hitBox.position);
     this.camera.update();
     this.physics.updateRot(new Vector3(0, this.camera.rot.y, this.camera.rot.z));
     this.hitBox.physicsImpostor.setAngularVelocity(Vector3.Zero());
     this.hitBox.rotation.set(this.physics.rot);
+    // this.model.position.set(this.hitBox.position.x, this.hitBox.position.y - 1, this.hitBox.position.z);
+    // this.model.rotation.set(this.physics.rot);
     this.updateAnimationInfo();
 }
 

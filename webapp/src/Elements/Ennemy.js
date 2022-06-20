@@ -23,8 +23,8 @@ let Ennemy = function(scene, pos, model, id){
     // model
     this.model = model.meshes[0];
     this.model.isVisible = true;
-    this.model.position = new Vector3(this.hitBox.position.x, this.hitBox.position.y - 1, this.hitBox.position.z)
-    this.model.rotation = this.hitBox.rotation;
+    this.model.position.set(this.hitBox.position.x, this.hitBox.position.y - 1, this.hitBox.position.z)
+    this.model.rotation.set(this.hitBox.rotation);
     this.model.isVisible = true;
 
     // animations
@@ -44,6 +44,11 @@ let Ennemy = function(scene, pos, model, id){
     this.currentAnimation = this.animationsMap["idle"];
     this.currentAnimation.play();
     this.currentAnimationName = "idle";
+}
+
+Ennemy.prototype.die = function(){
+    this.hitBox.dispose();
+    this.model.dispose();
 }
 
 Ennemy.prototype.updateInformation = function(playerInfo){

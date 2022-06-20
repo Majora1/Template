@@ -1,9 +1,7 @@
 from aiohttp import web
 import socketio
 from multiprocessing import Queue
-import threading
-import time
-from promise import Promise
+import random
 
 
 HOST = '192.168.0.56'
@@ -24,10 +22,12 @@ def connect(sid, environ):
     print(clients)
 
 @sio.event
-def disconnect(sid):
+async def disconnect(sid):
     clients.remove(sid)
     clientsData.pop(sid)
-    print(sid, "disconnected")
+    for client in clients:
+        if client != sid:
+            await sio.emit("playerKilled", sid, to=client)
 
 @sio.on('updatePlayerInfo')
 async def update(sid, data):
@@ -36,6 +36,15 @@ async def update(sid, data):
         clientsData.pop(sid)
     await sio.emit("updateEnnemiesData", list(clientsData.values()), to=sid);
     clientsData[sid] = (data, sid)
+
+@sio.on('kill')
+async def kill(sid, sidKilled):
+    print(f"{sidKilled} was killed !")
+    clientsData.pop(sidKilled)
+    await sio.emit("die", to=sidKilled)
+    for client in clients:
+        if client != sidKilled:
+            await sio.emit("playerKilled", sidKilled, to=client)
 
 if __name__ == '__main__':
     web.run_app(app, port = PORT)

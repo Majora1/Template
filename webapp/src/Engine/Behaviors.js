@@ -1,10 +1,8 @@
-import { Client } from './../Network/Client.js'
-
 let Behaviors = function(client){
 
 }
 
-Behaviors.prototype.swordHitEnnemy = function(sword, ennemy, client){
+Behaviors.prototype.swordHitEnnemy = function(sword, ennemy, client, ennemyHander){
     client.sendKill(ennemy.id);
 }
 

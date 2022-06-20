@@ -11,6 +11,8 @@ import { CollisionDetector } from './Engine/CollisionDetector.js'
 import { Behaviors } from "./Engine/Behaviors.js";
 import { Client } from "./Network/Client.js";
 import { EnnemiesHandler } from "./Data/EnnemiesHandler.js";
+import { GameState } from "./Game/GameState.js";
+import { loadModel } from "./utils.js"
 import * as cannon from "cannon";
 
 let createCanvas = function(){
@@ -44,6 +46,9 @@ let canvas = createCanvas();
 let engine = new Engine(canvas, true);
 let scene = new Scene(engine);
 scene.enablePhysics(new Vector3(0, -500 , 0), new CannonJSPlugin(true, 10, cannon));
+window.addEventListener('resize', () => {
+    engine.resize();
+});
 
 let camera = new UniversalCamera("Camera", new Vector3(10, 20, -10), scene);
 let light1  = new HemisphericLight("light1", new Vector3(10, 100, 10), scene);
@@ -57,17 +62,16 @@ light.radius = 1;
 const shadowGenerator = new ShadowGenerator(1024, light);
 //shadowGenerator.darkness = 0.4;
 */
+const client = new Client();
+let city = await City();
 
-let player = new Player(scene, canvas, new Vector3(-10, 8, 0));
-/*
-let ennemy1 = new Ennemy(scene, new Vector3(-10, 1, 4), "1");
-let ennemy2 = new Ennemy(scene, new Vector3(-10, 1, 8), "2");
-let ennemy3 = new Ennemy(scene, new Vector3(-8, 1, 6), "3");
-*/
-let ennemies = [];
-player.camera.on();
+let eModel = await loadModel("Character.glb", scene);
+let ennemiesHandler = new EnnemiesHandler(scene);
+let gameState = new GameState(scene, canvas, ennemiesHandler, client);
+client.setGame(gameState);
+gameState.createPlayer(eModel);
+
 //let ground = new TrainingSession(scene);
-let city = City();
 
 
 // hide/show the Inspector
@@ -89,9 +93,9 @@ let changeCamera = function(keyup){
     if (!keyup) return;
     if (on){
         camera.detachControl();
-        player.camera.on();
+        gameState.getPlayer().camera.on();
     } else {
-        player.camera.off();
+        gameState.getPlayer().camera.off();
         camera.attachControl(canvas, true);
         scene.activeCamera = camera;
     }
@@ -106,22 +110,9 @@ let menuController = {
     "swt" : changeCamera
 }
 
-let updateEnnemies = function(oldEnnemiesData, newEnnemiesData){
-    //for x, y in newEnnemiesData.items():
-}
-
-let loadModel = async function(name){
-    let model = await SceneLoader.ImportMeshAsync(null, "./models/", name, scene);
-    model.meshes[0].isVisible = false;
-    return model;
-}
-
-const client = new Client();
-let eModel = await loadModel("Character.glb");
 let inputController = new InputController(menuController, actionMap);
-let collisionDetector = new CollisionDetector(scene, client);
+let collisionDetector = new CollisionDetector(scene, client, ennemiesHandler);
 let behaviors = new Behaviors();
-let ennemiesHandler = new EnnemiesHandler(scene, eModel);
 
 
 //scene.debugLayer.show();
@@ -135,10 +126,12 @@ engine.runRenderLoop(() => {
     const deltaTime = currentTime - lastTime;
     if (deltaTime > interval) {
         lastTime = currentTime - (deltaTime % interval);
-        client.sendPlayerInfo(player.getPlayerInfo());
-        ennemiesHandler.updateEnnemies(client.getEnnemyData());
-        player.update();
-        scene.render();
-        collisionDetector.triggerIfEnnemyCollision([ player.swordHitBox ], ennemiesHandler.getEnnemies(), behaviors.swordHitEnnemy);
+        if (gameState.checkState("inGame")){
+            client.sendPlayerInfo(gameState.getPlayer().getPlayerInfo());
+            ennemiesHandler.updateEnnemies(client.getEnnemyData());
+            gameState.getPlayer().update();
+            scene.render();
+            collisionDetector.triggerIfEnnemyCollision([ gameState.getPlayer().swordHitBox ], ennemiesHandler.getEnnemies(), behaviors.swordHitEnnemy);
+        }
     }
 });

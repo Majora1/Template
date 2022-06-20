@@ -1,9 +1,10 @@
 import { ExecuteCodeAction, ActionManager } from "@babylonjs/core";
 
-let CollisionDetector = function(scene, client)
+let CollisionDetector = function(scene, client, ennemiesHandler)
 {
     this.scene = scene;
     this.client = client;
+    this.ennemiesHandler = ennemiesHandler;
 }
 CollisionDetector.prototype.triggerIfEnnemyCollision = function(groupMesh1, ennemies, eventIncident){
     groupMesh1.forEach(mesh => {
@@ -15,7 +16,7 @@ CollisionDetector.prototype.triggerIfEnnemyCollision = function(groupMesh1, enne
                     parameter: ennemy.hitBox
                 },
                 (e)=>{
-                    eventIncident(mesh, ennemy, this.client);
+                    eventIncident(mesh, ennemy, this.client, this.ennemiesHandler);
                 })
             )
         });   
